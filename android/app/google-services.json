@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "966647704543",
+    "project_id": "agricultural-products-eaa2b",
+    "storage_bucket": "agricultural-products-eaa2b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:966647704543:android:0a41eefa76ce75545c326a",
+        "android_client_info": {
+          "package_name": "com.example.agricultural_products"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "966647704543-ni5ojok2sbnsr63spqsf85knom7j0p4j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.agricultural_products",
+            "certificate_hash": "93a691e36de4def9d245291f96b3b29fa2345b83"
+          }
+        },
+        {
+          "client_id": "966647704543-9uj5r1p3ui3va475roj8ve67mk3nq3j5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDfHdN49JW2ZGm5eIFvoPQd99RzVmhvQA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "966647704543-9uj5r1p3ui3va475roj8ve67mk3nq3j5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
