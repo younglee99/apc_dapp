@@ -3,11 +3,14 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import '../variable.dart';
+import '../contract.dart';
 
 class ImageUpload extends StatefulWidget {
-  const ImageUpload({
-    Key? key,
-  }) : super(key: key);
+  final Future<void> Function() updateFunction;
+  final void Function(bool) updateLoading;
+  const ImageUpload(
+      {Key? key, required this.updateFunction, required this.updateLoading})
+      : super(key: key);
 
   @override
   State<ImageUpload> createState() => ImageUploadState();
@@ -18,6 +21,7 @@ class ImageUploadState extends State<ImageUpload> {
   final picker = ImagePicker();
   List<XFile?> multiImage = [];
   String productTitle = "";
+  List<String> imageUrls = [];
 
   Future<void> pickImages() async {
     multiImage = await picker.pickMultiImage();
@@ -45,6 +49,30 @@ class ImageUploadState extends State<ImageUpload> {
         );
       }
     }
+    widget.updateFunction();
+    uploadContract();
+  }
+
+  Future<void> uploadContract() async {
+    firebase_storage.FirebaseStorage storage =
+        firebase_storage.FirebaseStorage.instance;
+
+    // 이미지 URL들을 저장할 리스트
+    List<String> imageUrls = [];
+
+    firebase_storage.Reference ref =
+        storage.ref().child('images/$productTitle');
+
+    List<firebase_storage.Reference> resultList = (await ref.listAll()).items;
+
+    for (var item in resultList) {
+      String downloadUrl = await item.getDownloadURL();
+      imageUrls.add(downloadUrl);
+    }
+    String finalUrl = imageUrls.join(',');
+    print(finalUrl);
+    print(productTitle);
+    createNote(uid, productTitle, finalUrl);
   }
 
   @override
@@ -204,8 +232,9 @@ class ImageUploadState extends State<ImageUpload> {
                       },
                     );
                   } else {
+                    widget.updateLoading(true);
+                    uploadImagesToFirebase(multiImage);
                     Navigator.pop(context);
-                    await uploadImagesToFirebase(multiImage);
                   }
                   // 업로드 완료 후 추가 작업 수행 가능
                 } else {

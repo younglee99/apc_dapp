@@ -1,24 +1,41 @@
+import 'package:agricultural_products/producer/product.dart';
+import 'package:agricultural_products/producer/resister.dart';
+import 'package:agricultural_products/sign.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/client.dart';
+import 'package:web3dart/web3dart.dart';
+import '../contract.dart';
 import 'package:image_picker/image_picker.dart';
 import '../variable.dart';
 import '../firebase.dart';
 import '../gridview.dart';
+import 'package:agricultural_products/qr_code.dart';
 
-class ProductList extends StatefulWidget {
-  const ProductList({super.key});
+class ProducerProfile extends StatefulWidget {
+  const ProducerProfile({super.key});
 
   @override
-  State<ProductList> createState() => MainScreenState();
+  State<ProducerProfile> createState() => _ProducerProfileState();
 }
 
-class MainScreenState extends State<ProductList> {
+class _ProducerProfileState extends State<ProducerProfile> {
   List<XFile?> images = [];
   bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
     updateDate();
+    connectToEthereum();
+    httpClient = Client();
+    ethClient = Web3Client(
+        "https://sepolia.infura.io/v3/d834909dd4f0443590207949eef1e469",
+        httpClient);
+  }
+
+  void updateLoadingStatus(bool newStatus) {
+    setState(() {
+      isLoading = newStatus;
+    });
   }
 
   Future<void> updateDate() async {
@@ -34,15 +51,32 @@ class MainScreenState extends State<ProductList> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.black),
-        backgroundColor: Colors.white,
-        elevation: 2,
-        title: const Text("            상품 내역",
-            style: TextStyle(color: Colors.black)),
-      ),
       body: Column(
         children: [
+          Container(
+            padding: const EdgeInsets.only(top: 30),
+            color: const Color.fromARGB(255, 245, 245, 245),
+            height: 130,
+            child: Row(children: [
+              Container(
+                padding: const EdgeInsets.only(left: 20),
+                child: const Text(
+                  "홍길동 님",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                ),
+              ),
+              const SizedBox(
+                width: 130,
+              ),
+              const Text(
+                "생산자",
+                style: TextStyle(fontSize: 20),
+              ),
+            ]),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
@@ -153,9 +187,125 @@ class MainScreenState extends State<ProductList> {
               ),
             ),
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 55,
+                width: 322,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 84, 160, 86),
+                    foregroundColor: const Color.fromARGB(255, 41, 41, 41),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ImageUpload(
+                                  updateFunction: updateDate,
+                                  updateLoading: updateLoadingStatus,
+                                )));
+                  },
+                  child: const Text("상품 등록 +",
+                      style:
+                          TextStyle(fontSize: 25, fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 50,
+                width: 150,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 145, 226, 148),
+                    foregroundColor: const Color.fromARGB(255, 9, 85, 53),
+                    shadowColor: const Color.fromARGB(255, 153, 214, 155),
+                    elevation: 10,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ProductList()),
+                    );
+                  },
+                  child: const Text("인증서",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+                ),
+              ),
+              const SizedBox(
+                width: 20,
+              ),
+              SizedBox(
+                height: 50,
+                width: 150,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 145, 226, 148),
+                    foregroundColor: const Color.fromARGB(255, 9, 85, 53),
+                    shadowColor: const Color.fromARGB(255, 153, 214, 155),
+                    elevation: 10,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const SignaturePadScreen()));
+                  },
+                  child: const Text("서명",
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween, // 양 끝으로 정렬
+            children: [
+              RawMaterialButton(
+                elevation: 2.0,
+                fillColor: Colors.white,
+                padding: const EdgeInsets.all(15.0),
+                shape: const CircleBorder(),
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const QRScreen()));
+                },
+                child: const Icon(
+                  Icons.qr_code,
+                  size: 35.0,
+                ),
+              ),
+              RawMaterialButton(
+                elevation: 2.0,
+                fillColor: Colors.white,
+                padding: const EdgeInsets.all(15.0),
+                shape: const CircleBorder(),
+                onPressed: () {},
+                child: const Icon(
+                  Icons.question_mark,
+                  size: 35.0,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(
             height: 20,
-          )
+          ),
         ],
       ),
     );

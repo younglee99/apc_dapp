@@ -1,7 +1,7 @@
-import 'package:agricultural_products/certification.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'variable.dart';
+import 'distribution.dart';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
@@ -71,7 +71,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const Certification(),
+                    builder: (context) => const Distribution(),
                   ),
                 );
               },
@@ -99,12 +99,11 @@ class _QRScannerPageState extends State<QRScannerPage> {
 
           // 스캔된 문자열을 분해하여 원래의 리스트 형태로 되돌림
           scannedData = scannedData.substring(4);
-          List<String>? scannedList = scannedData.split(", ");
 
           // 분해한 데이터를 리스트에 넣음
           setState(() {
-            dataList = scannedList;
-            print(dataList);
+            productUID = scannedData!;
+            print(productUID);
           });
         } else {
           setState(() {

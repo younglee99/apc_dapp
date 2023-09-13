@@ -1,4 +1,4 @@
-import 'package:agricultural_products/producer/p_producer.dart';
+import 'package:agricultural_products/producer/p_profile.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

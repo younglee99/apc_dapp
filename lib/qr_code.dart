@@ -13,7 +13,7 @@ class QRScreen extends StatefulWidget {
 class _QRScreenState extends State<QRScreen> {
   List<String> qrListData = [];
   String qrData = "";
-  bool isLoading = true; // isLoading 상태 변수 추가
+  bool isLoading_ = true; // isLoading_ 상태 변수 추가
 
   @override
   void initState() {
@@ -25,8 +25,8 @@ class _QRScreenState extends State<QRScreen> {
     await getData();
     if (mounted) {
       setState(() {
-        qrData = "1111${productTitles.join(", ")}";
-        isLoading = false; // 데이터 업데이트가 완료되면 isLoading 상태를 false로 변경
+        qrData = "1111$uid";
+        isLoading_ = false; // 데이터 업데이트가 완료되면 isLoading_ 상태를 false로 변경
       });
     }
   }
@@ -36,7 +36,7 @@ class _QRScreenState extends State<QRScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: isLoading // isLoading 상태에 따라 QR 코드를 표시하거나 숨김
+        child: isLoading_ // isLoading_ 상태에 따라 QR 코드를 표시하거나 숨김
             ? const CircularProgressIndicator() // 로딩 중이면 로딩 인디케이터 표시
             : SizedBox(
                 width: 200.0,
