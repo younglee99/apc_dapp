@@ -2,6 +2,7 @@ List<String> productTitles = [];
 List<String?> imageDates = [];
 List<String> dataList = [];
 List<String> dataUrlList = [];
+List<String> testList = [];
 String uid = "1111";
 String productUID = "";
 String test1 = "";

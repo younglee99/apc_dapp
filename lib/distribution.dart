@@ -34,11 +34,9 @@ class _DistributionState extends State<Distribution> {
         function: getNoteByIdFunction,
         params: [productUID, BigInt.from(i)],
       );
-      print(noteResult[0]);
-      print(noteResult[1]);
       setState(() {
         dataList.add(noteResult[0].toString());
-        dataUrlList.add(noteResult[1].toString());
+        testList.add(noteResult[1].toString());
       });
     }
   }
@@ -106,6 +104,7 @@ class _DistributionState extends State<Distribution> {
                                 top: 0, left: 20, right: 20, bottom: 20),
                             child: GestureDetector(
                                 onTap: () {
+                                  dataUrlList = testList[index].split(',');
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
