@@ -28,6 +28,8 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  sqflite: ^2.0.0
+  path: ^1.8.2
   flutter:
     sdk: flutter
   image_picker: ^0.8.7
@@ -43,6 +45,7 @@ dependencies:
   firebase_storage: ^11.2.4
   http: ^0.13.6
   web3dart: ^2.6.1
+
 
 dev_dependencies:
   flutter_test:

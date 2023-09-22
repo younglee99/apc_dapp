@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+import 'dart:convert';
 
 class SignaturePadScreen extends StatefulWidget {
   const SignaturePadScreen({super.key});
@@ -14,81 +17,157 @@ class _SignaturePadScreenState extends State<SignaturePadScreen> {
   final GlobalKey<SignatureState> _sign = GlobalKey();
   ByteData _img = ByteData(0);
   double strokeWidth = 5.0;
+  bool hasSignature = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _loadSignature();
+  }
+
+  Future<void> _loadSignature() async {
+    // 데이터베이스에서 서명 데이터를 가져와서 이미지로 변환
+    SignatureDatabase signatureDB = SignatureDatabase();
+    await signatureDB.initializeDatabase();
+    List<String> signatures = await signatureDB.getAllSignatures();
+
+    if (signatures.isNotEmpty) {
+      setState(() {
+        hasSignature = true;
+        _img = _loadImageFromSignature(signatures.last); // 이 데이터를 qr에 넣는다
+      });
+    }
+  }
+
+  ByteData _loadImageFromSignature(String signatureData) {
+    Uint8List signatureBytes = base64Decode(signatureData);
+    return ByteData.sublistView(signatureBytes);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('                  서명'),
+        title: const Text('서명'),
       ),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            alignment: Alignment.center,
-            child: const Text(
-              '서명해주세요',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              color: Colors.black12,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Signature(
-                  color: Colors.black, // Keep the color black
-                  key: _sign,
-                  onSign: () {
-                    final sign = _sign.currentState;
-                    debugPrint(
-                        '${sign!.points.length} points in the signature');
-                  },
-                  strokeWidth: strokeWidth,
+          if (hasSignature)
+            Expanded(
+              child: Center(
+                child: Image.memory(_img.buffer.asUint8List()),
+              ),
+            )
+          else
+            Expanded(
+              child: Container(
+                color: Colors.black12,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Signature(
+                    color: Colors.black,
+                    key: _sign,
+                    onSign: () {
+                      final sign = _sign.currentState;
+                      debugPrint(
+                          '${sign!.points.length} points in the signature');
+                    },
+                    strokeWidth: strokeWidth,
+                  ),
                 ),
               ),
             ),
-          ),
-          _img.buffer.lengthInBytes == 0
-              ? Container()
-              : LimitedBox(
-                  maxHeight: 200.0,
-                  child: Image.memory(_img.buffer.asUint8List()),
-                ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              MaterialButton(
-                color: Colors.green,
-                onPressed: () async {
-                  final sign = _sign.currentState;
-                  final image = await sign!.getData();
-                  var data =
-                      await image.toByteData(format: ui.ImageByteFormat.png);
-                  sign.clear();
-                  setState(() {
-                    _img = data!;
-                  });
-                  debugPrint("onPressed");
-                },
-                child: const Text("Save"),
-              ),
-              MaterialButton(
-                color: Colors.grey,
-                onPressed: () {
-                  final sign = _sign.currentState;
-                  sign!.clear();
-                  setState(() {
-                    _img = ByteData(0);
-                  });
-                  debugPrint("cleared");
-                },
-                child: const Text("Clear"),
-              ),
+              if (!hasSignature)
+                MaterialButton(
+                  color: Colors.green,
+                  onPressed: () async {
+                    final sign = _sign.currentState;
+                    final image = await sign!.getData();
+                    var data =
+                        await image.toByteData(format: ui.ImageByteFormat.png);
+                    sign.clear();
+
+                    String signatureData = base64Encode(
+                        Uint8List.sublistView(data!.buffer.asUint8List()));
+
+                    // 서명 데이터를 로컬 DB에 저장
+                    SignatureDatabase signatureDB = SignatureDatabase();
+                    await signatureDB.initializeDatabase();
+                    await signatureDB.insertSignature(signatureData);
+
+                    setState(() {
+                      _img = data;
+                      hasSignature = true;
+                    });
+
+                    debugPrint("onPressed");
+                  },
+                  child: const Text("저장"),
+                )
+              else
+                MaterialButton(
+                  color: Colors.grey,
+                  onPressed: () {
+                    final sign = _sign.currentState;
+                    if (sign != null) {
+                      sign.clear();
+                    } else {
+                      // sign 객체가 null인 경우에 대한 처리
+                      debugPrint("sign is null");
+                    }
+                    setState(() {
+                      _img = ByteData(0);
+                      hasSignature = false;
+                    });
+                    debugPrint("cleared");
+                  },
+                  child: const Text("수정"),
+                ),
             ],
           ),
         ],
       ),
     );
+  }
+}
+
+class SignatureDatabase {
+  static const String dbName = 'signature.db';
+  static const String tableName = 'signatures';
+
+  late Database _database;
+
+  Future<void> initializeDatabase() async {
+    final databasePath = await getDatabasesPath();
+    final path = join(databasePath, dbName);
+
+    _database = await openDatabase(
+      path,
+      version: 1,
+      onCreate: (db, version) {
+        return db.execute('''
+          CREATE TABLE $tableName(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            signatureData TEXT
+          )
+        ''');
+      },
+    );
+  }
+
+  Future<void> insertSignature(String signatureData) async {
+    await _database.insert(tableName, {'signatureData': signatureData});
+  }
+
+  Future<List<String>> getAllSignatures() async {
+    final List<Map<String, dynamic>> maps = await _database.query(tableName);
+
+    return List.generate(maps.length, (i) {
+      return maps[i]['signatureData'] as String;
+    });
   }
 }
