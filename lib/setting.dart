@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'variable.dart';
 import 'distribution.dart';
+import 'dart:convert';
 
 class SettingScreen extends StatelessWidget {
   const SettingScreen({super.key});
@@ -76,7 +77,7 @@ class _QRScannerPageState extends State<QRScannerPage> {
                 );
               },
               child: const Text(
-                "인증서 보기",
+                "유통내역 보기",
                 style: TextStyle(color: Colors.white, fontSize: 25),
               ))),
     );
@@ -91,18 +92,19 @@ class _QRScannerPageState extends State<QRScannerPage> {
         });
 
         String? scannedData = scanData.code;
-        if (scannedData == null) {
-        } else if (scannedData.substring(0, 4) == "1111") {
+        Map<String, dynamic> jsonData = jsonDecode(scannedData!);
+        String password = jsonData['password'];
+        if (password == "1111") {
           setState(() {
             checking = true;
           });
 
           // 스캔된 문자열을 분해하여 원래의 리스트 형태로 되돌림
-          scannedData = scannedData.substring(4);
 
           // 분해한 데이터를 리스트에 넣음
           setState(() {
-            productUID = scannedData!;
+            productUID = jsonData['uid'];
+            producerSign = jsonData['sign'];
             print(productUID);
           });
         } else {

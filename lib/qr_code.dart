@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'variable.dart';
-import 'firebase.dart';
+import 'sign_data.dart';
+import 'dart:convert';
 
 class QRScreen extends StatefulWidget {
   const QRScreen({Key? key}) : super(key: key);
@@ -13,22 +15,40 @@ class QRScreen extends StatefulWidget {
 class _QRScreenState extends State<QRScreen> {
   List<String> qrListData = [];
   String qrData = "";
-  bool isLoading_ = true; // isLoading_ 상태 변수 추가
+  bool isLoading_ = true;
 
   @override
   void initState() {
     super.initState();
-    updateDate();
+    updateData();
   }
 
-  Future<void> updateDate() async {
-    await getData();
+  Future<void> updateData() async {
+    SignatureDatabase signatureDB = SignatureDatabase();
+    await signatureDB.initializeDatabase();
+    List<String> signatures = await signatureDB.getAllSignatures();
+    String lastSignature = signatures.last;
+
+    Map<String, dynamic> jsonData = {
+      'password': '1111',
+      'uid': uid,
+      'sign': lastSignature,
+    };
+
     if (mounted) {
       setState(() {
-        qrData = "1111$uid";
-        isLoading_ = false; // 데이터 업데이트가 완료되면 isLoading_ 상태를 false로 변경
+        qrData = jsonEncode(jsonData);
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!object");
+        print(qrData);
+        isLoading_ = false;
       });
     }
+  }
+
+  String compressAndEncode(String data) {
+    final codec = GZipCodec();
+    final encodedData = codec.encode(utf8.encode(data));
+    return base64.encode(encodedData);
   }
 
   @override

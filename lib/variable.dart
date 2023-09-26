@@ -5,5 +5,6 @@ List<String> dataUrlList = [];
 List<String> testList = [];
 String uid = "1111";
 String productUID = "";
+String producerSign = "";
 String test1 = "";
 String test2 = "";
