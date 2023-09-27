@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'variable.dart';
@@ -28,11 +27,13 @@ class _QRScreenState extends State<QRScreen> {
     await signatureDB.initializeDatabase();
     List<String> signatures = await signatureDB.getAllSignatures();
     String lastSignature = signatures.last;
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!object");
+    print(lastSignature);
 
     Map<String, dynamic> jsonData = {
       'password': '1111',
       'uid': uid,
-      'sign': lastSignature,
+      'sign': "lastSie",
     };
 
     if (mounted) {
@@ -43,12 +44,6 @@ class _QRScreenState extends State<QRScreen> {
         isLoading_ = false;
       });
     }
-  }
-
-  String compressAndEncode(String data) {
-    final codec = GZipCodec();
-    final encodedData = codec.encode(utf8.encode(data));
-    return base64.encode(encodedData);
   }
 
   @override

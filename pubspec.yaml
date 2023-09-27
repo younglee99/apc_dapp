@@ -45,7 +45,8 @@ dependencies:
   firebase_storage: ^11.2.4
   http: ^0.13.6
   web3dart: ^2.6.1
-  archive: ^3.4.2
+  ipfs_client_flutter: ^1.0.0
+
 
 
 dev_dependencies:
