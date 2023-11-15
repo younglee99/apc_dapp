@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../variable.dart';
-import '../firebase.dart';
-import '../gridview.dart';
+import 'package:trust_blockchain/global_variable.dart';
+import 'package:trust_blockchain/database.dart';
+import 'package:trust_blockchain/gridview.dart';
 
-class ProductList extends StatefulWidget {
-  const ProductList({super.key});
+class ProductsList extends StatefulWidget {
+  final String? farmName;
+  final String? farmUID;
+
+  ProductsList({super.key, required this.farmName, required this.farmUID});
 
   @override
-  State<ProductList> createState() => MainScreenState();
+  State<ProductsList> createState() => MainScreenState();
 }
 
-class MainScreenState extends State<ProductList> {
+class MainScreenState extends State<ProductsList> {
   List<XFile?> images = [];
   bool isLoading = true;
 
@@ -22,7 +25,7 @@ class MainScreenState extends State<ProductList> {
   }
 
   Future<void> updateDate() async {
-    await getData();
+    await getFarmData(widget.farmUID);
     if (mounted) {
       setState(() {
         isLoading = false;
@@ -30,46 +33,60 @@ class MainScreenState extends State<ProductList> {
     }
   }
 
+  void handleImagesSelected(List<XFile?> selectedImages) {
+    setState(() {
+      images = selectedImages;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    double w = MediaQuery.of(context).size.width;
+    double h = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        iconTheme: const IconThemeData(color: Colors.black),
-        backgroundColor: Colors.white,
-        elevation: 2,
-        title: const Text("            상품 내역",
-            style: TextStyle(color: Colors.black)),
-      ),
-      body: Column(
+          title: Text("${widget.farmName}"),
+          backgroundColor: Color(0xFF256B66),
+          elevation: 0),
+      body: Stack(
         children: [
-          Expanded(
+          Container(
+            width: w,
+            height: h * 0.2,
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage("img/background.png"),
+                    fit: BoxFit.cover)),
+          ),
+          Center(
             child: Container(
-              margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
+              width: w * 0.9,
+              height: h * 0.85,
               decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 117, 185, 148),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20))),
+                color: Color.fromARGB(255, 117, 185, 148),
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+              ),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 200,
-                        height: 50,
-                        padding: const EdgeInsets.only(left: 20, top: 20),
-                        child: const Text(
-                          "상품 등록 내역",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                  Container(
+                    width: w,
+                    height: h * 0.07,
+                    padding: const EdgeInsets.only(left: 20, top: 20),
+                    child: const Text(
+                      "상품 등록 내역",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
+                    ),
                   ),
-                  Expanded(
+                  SizedBox(
+                    height: h * 0.02,
+                  ),
+                  Container(
+                    height: h * 0.73,
                     child: isLoading
                         ? const Center(
                             child:
@@ -78,21 +95,19 @@ class MainScreenState extends State<ProductList> {
                             child: ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
-                              itemCount: imageDates.length,
+                              itemCount: updateDateList.length,
                               itemBuilder: (BuildContext context, int index) {
                                 return Container(
                                   height: 80,
                                   margin: const EdgeInsets.only(
-                                      top: 0, left: 20, right: 20, bottom: 20),
+                                      top: 0, left: 20, right: 20, bottom: 10),
                                   child: GestureDetector(
                                       onTap: () {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                ImageGridViewPage(
-                                              productTitle:
-                                                  productTitles[index],
+                                                ImageGridViewPage(productTitle: productTitleList[index], farmUID: widget.farmUID,
                                             ),
                                           ),
                                         );
@@ -111,7 +126,7 @@ class MainScreenState extends State<ProductList> {
                                           width: double.infinity,
                                           height: double.infinity,
                                           child: Text(
-                                            "상품 이름 : ${productTitles[index]}",
+                                            "상품 이름 : ${productTitleList[index]}",
                                             style: const TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w500),
@@ -132,7 +147,7 @@ class MainScreenState extends State<ProductList> {
                                             width: double.infinity,
                                             height: double.infinity,
                                             child: Text(
-                                                "업데이트 날짜 : ${imageDates[index]}",
+                                                "업데이트 날짜 : ${updateDateList[index]}",
                                                 style: const TextStyle(
                                                     fontSize: 10,
                                                     fontWeight:
@@ -152,9 +167,6 @@ class MainScreenState extends State<ProductList> {
                 ],
               ),
             ),
-          ),
-          const SizedBox(
-            height: 20,
           )
         ],
       ),

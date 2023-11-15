@@ -1,8 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'variable.dart';
-import 'sign_data.dart';
-import 'dart:convert';
+import 'package:trust_blockchain/global_variable.dart';
+import 'package:trust_blockchain/database.dart';
 
 class QRScreen extends StatefulWidget {
   const QRScreen({Key? key}) : super(key: key);
@@ -12,38 +13,32 @@ class QRScreen extends StatefulWidget {
 }
 
 class _QRScreenState extends State<QRScreen> {
-  List<String> qrListData = [];
   String qrData = "";
-  bool isLoading_ = true;
+  bool isLoading_ = true; // isLoading_ 상태 변수 추가
 
   @override
   void initState() {
     super.initState();
-    updateData();
+    if(userClassification == '생산자'){
+      producerQRBuilder();
+    } else if(userClassification == '유통업자'){
+      distributorQRBuilder();
+    } else {
+
+    }
   }
 
-  Future<void> updateData() async {
-    SignatureDatabase signatureDB = SignatureDatabase();
-    await signatureDB.initializeDatabase();
-    List<String> signatures = await signatureDB.getAllSignatures();
-    String lastSignature = signatures.last;
-    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!object");
-    print(lastSignature);
+  Future<void> producerQRBuilder() async {
+    qrData = "1111$userUID";
+    isLoading_ = false;
+  }
 
-    Map<String, dynamic> jsonData = {
-      'password': '1111',
-      'uid': uid,
-      'sign': "lastSie",
-    };
-
-    if (mounted) {
-      setState(() {
-        qrData = jsonEncode(jsonData);
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!object");
-        print(qrData);
-        isLoading_ = false;
-      });
-    }
+  Future<void> distributorQRBuilder() async {
+    String farmData = jsonEncode(farmUIDList);
+    // String userData = jsonEncode(userUID);
+    print("농장 UID : $farmData");
+    qrData = "2222$farmData";
+    isLoading_ = false;
   }
 
   @override

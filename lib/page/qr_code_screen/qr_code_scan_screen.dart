@@ -1,11 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'variable.dart';
-import 'distribution.dart';
 import 'dart:convert';
 
-class SettingScreen extends StatelessWidget {
-  const SettingScreen({super.key});
+import 'package:flutter/material.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:trust_blockchain/global_variable.dart';
+import 'package:trust_blockchain/user/consumer/distribution_to_con.dart';
+import 'package:trust_blockchain/user/distributor/distribution_to_dist.dart';
+
+class QRcodeScanScreen extends StatelessWidget {
+  const QRcodeScanScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -40,15 +42,15 @@ class _QRScannerPageState extends State<QRScannerPage> {
           buildQRView(),
           isScanning
               ? const Text(
-                  "QR코드를 인식하세요",
-                  style: TextStyle(color: Colors.white, fontSize: 25),
-                )
+            "QR코드를 인식하세요",
+            style: TextStyle(color: Colors.white, fontSize: 25),
+          )
               : checking
-                  ? buildScanIndicator()
-                  : const Text(
-                      "잘못된 QR코드 입니다",
-                      style: TextStyle(color: Colors.white, fontSize: 25),
-                    ),
+              ? buildScanIndicator()
+              : const Text(
+            "잘못된 QR코드 입니다",
+            style: TextStyle(color: Colors.white, fontSize: 25),
+          ),
         ],
       ),
     );
@@ -62,23 +64,33 @@ class _QRScannerPageState extends State<QRScannerPage> {
   }
 
   Widget buildScanIndicator() {
+    double w = MediaQuery.of(context).size.width;
+    double h = MediaQuery.of(context).size.height;
     return Positioned(
       bottom: 20.0,
       child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          color: Colors.black54,
+          width: w * 0.3,
+          height: h * 0.07,
+          decoration: const BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
           child: TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const Distribution(),
-                  ),
-                );
+              onPressed: () async {
+                if(userClassification == '유통업자'){
+                  final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Distribution_to_Distributors()));
+                  if (result == 'update') {
+                    Navigator.pop(context, 'update');
+                  }
+                } else {
+                  final result = await Navigator.push(context, MaterialPageRoute(builder: (context) => Distribution_to_Consumers()));
+                  if (result == 'update') {
+                    Navigator.pop(context, 'update');
+                  }
+                }
               },
-              child: const Text(
-                "유통내역 보기",
-                style: TextStyle(color: Colors.white, fontSize: 25),
+              child: Text("확인",
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 25),
               ))),
     );
   }
@@ -92,22 +104,39 @@ class _QRScannerPageState extends State<QRScannerPage> {
         });
 
         String? scannedData = scanData.code;
-        Map<String, dynamic> jsonData = jsonDecode(scannedData!);
-        String password = jsonData['password'];
-        if (password == "1111") {
+        if (scannedData == null) {
+        }
+        // 생산자 -> 유통업자
+        else if (scannedData.substring(0, 4) == "1111") {
           setState(() {
             checking = true;
           });
-
           // 스캔된 문자열을 분해하여 원래의 리스트 형태로 되돌림
-
+          scannedData = scannedData.substring(4);
           // 분해한 데이터를 리스트에 넣음
           setState(() {
-            productUID = jsonData['uid'];
-            producerSign = jsonData['sign'];
-            print(productUID);
+            producerUID = scannedData!;
+            print(producerUID);
           });
-        } else {
+        }
+        // 유통업자 -> 소비자
+        else if(scannedData.substring(0, 4) == "2222"){
+          setState(() {
+            checking = true;
+          });
+          String scannedListData = scannedData.substring(4);
+
+          // JSON 형식의 문자열을 다시 List<dynamic>으로 변환
+          List<dynamic> decodedData = jsonDecode(scannedListData);
+
+          setState(() {
+            // List<dynamic>을 List<String?>으로 변환
+            distributorUIDList = decodedData.cast<String?>();
+            print(distributorUIDList);
+          });
+        }
+        // 그외
+        else {
           setState(() {
             checking = false;
           });

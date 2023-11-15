@@ -1,42 +1,58 @@
 {
   "project_info": {
-    "project_number": "966647704543",
-    "project_id": "agricultural-products-eaa2b",
-    "storage_bucket": "agricultural-products-eaa2b.appspot.com"
+    "project_number": "78944078857",
+    "firebase_url": "https://trust-blockchain-default-rtdb.firebaseio.com",
+    "project_id": "trust-blockchain",
+    "storage_bucket": "trust-blockchain.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:966647704543:android:0a41eefa76ce75545c326a",
+        "mobilesdk_app_id": "1:78944078857:android:1db062add278ae9a6f7cd8",
         "android_client_info": {
-          "package_name": "com.example.agricultural_products"
+          "package_name": "com.example.trust_blockchain"
         }
       },
       "oauth_client": [
         {
-          "client_id": "966647704543-ni5ojok2sbnsr63spqsf85knom7j0p4j.apps.googleusercontent.com",
+          "client_id": "78944078857-0aobtc3qkf00rkpnnfejv0tc8vna1m36.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.agricultural_products",
+            "package_name": "com.example.trust_blockchain",
             "certificate_hash": "93a691e36de4def9d245291f96b3b29fa2345b83"
           }
         },
         {
-          "client_id": "966647704543-9uj5r1p3ui3va475roj8ve67mk3nq3j5.apps.googleusercontent.com",
+          "client_id": "78944078857-mjpktbehhi9cetfviul4t3vj7n6flte0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.trust_blockchain",
+            "certificate_hash": "9e0353f935a4c1a733731d18951816bdd52cacdb"
+          }
+        },
+        {
+          "client_id": "78944078857-6r06dgkb0o62jnc6brqi7fjp98hjema4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCDfHdN49JW2ZGm5eIFvoPQd99RzVmhvQA"
+          "current_key": "AIzaSyDXWH1s6OkVrrxytN5MR4FhO73_iyFDvU8"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "966647704543-9uj5r1p3ui3va475roj8ve67mk3nq3j5.apps.googleusercontent.com",
+              "client_id": "78944078857-6r06dgkb0o62jnc6brqi7fjp98hjema4.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "78944078857-l4hnmp16dvam8rv8tvdvrbl1hrobgidn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.trustBlockchain"
+              }
             }
           ]
         }

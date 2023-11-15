@@ -1,6 +1,6 @@
 {
-    "name": "agricultural_products",
-    "short_name": "agricultural_products",
+    "name": "trust_blockchain",
+    "short_name": "trust_blockchain",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

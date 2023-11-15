@@ -1,4 +1,4 @@
-package com.example.agricultural_products
+package com.example.trust_blockchain
 
 import io.flutter.embedding.android.FlutterActivity
 

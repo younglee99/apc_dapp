@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/src/client.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:trust_blockchain/global_variable.dart';
 
 class Note {
   String title;
@@ -13,9 +14,9 @@ class Note {
 }
 
 List<Note> notes = [];
-
 late Client httpClient;
 late Web3Client ethClient;
+
 late EthereumAddress contractAddress;
 late DeployedContract contract;
 late ContractFunction createNoteFunction;
@@ -25,12 +26,14 @@ late ContractFunction updateNoteByIndexFunction;
 late ContractFunction deleteNoteByIndexFunction;
 late int noteCount;
 
-EthPrivateKey credentials = EthPrivateKey.fromHex(
-    "f5bd22493d75c67e7ff8fc8c4769c1cbbe0126db1dd0b2ba37eaeae319deae47");
+String PrivateKey = Eth_Private_Key;
+String Address = Contract_Address;
+
+EthPrivateKey credentials = EthPrivateKey.fromHex(PrivateKey);
 
 Future<void> connectToEthereum() async {
   String abiJson = await rootBundle.loadString('assets/abi.json');
-  String contractAddress = "0x15bf5EeB1A3947d4F37A6BD23Ca3fA445efF40C7";
+  String contractAddress = Address;
 
   contract = DeployedContract(ContractAbi.fromJson(abiJson, 'ContractName'),
       EthereumAddress.fromHex(contractAddress));
@@ -38,6 +41,9 @@ Future<void> connectToEthereum() async {
   createNoteFunction = contract.function('createNoteWithId');
   getNoteCountFunction = contract.function('getNoteCount');
   getNoteByIdFunction = contract.function('getNotesById');
+  updateNoteByIndexFunction = contract.function('updateNoteByIndex');
+  deleteNoteByIndexFunction = contract.function('deleteNoteByIndex');
+
 }
 
 Future<void> createNote(String uid, String title, String content) async {
@@ -50,4 +56,33 @@ Future<void> createNote(String uid, String title, String content) async {
     ),
     chainId: 11155111,
   );
+}
+
+Future<void> updateNoteByIndex(String uid, int index, String title, String content) async {
+  await ethClient.sendTransaction(
+    credentials,
+    Transaction.callContract(
+      contract: contract,
+      function: updateNoteByIndexFunction,
+      parameters: [uid, BigInt.from(index), title, content],
+    ),
+    chainId: 11155111,
+  );
+}
+
+Future<void> deleteNoteByIndex(int index) async {
+  if (index >= 0 && index < notes.length) {
+    await ethClient.sendTransaction(
+      credentials,
+      Transaction.callContract(
+        contract: contract,
+        function: deleteNoteByIndexFunction,
+        parameters: [BigInt.from(index)],
+      ),
+      chainId: 11155111,
+    );
+
+  } else {
+    print('Invalid index');
+  }
 }
